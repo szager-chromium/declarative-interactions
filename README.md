@@ -16,7 +16,7 @@ This proposal provides a declarative syntax for specifying that an input event t
     animation: spin 0.25s forwards paused;
     animation-trigger: click(spin-trigger) once;
   }
-  #spin-trigger {
+  #details {
     animation-trigger-name: spin-trigger;
   }
   @keyframes spin {
@@ -24,7 +24,7 @@ This proposal provides a declarative syntax for specifying that an input event t
     to { rotate: 180deg; }
   }
 </style>
-<div id="spin-trigger">
+<div id="details">
   Details
   <svg id="spinner" style="width: 24px; height: 24px;">
     <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10 12 16 18 10Z"></path>
@@ -44,7 +44,7 @@ The above is almost exactly equivalent to:
     to { rotate: 180deg; }
   }
 </style>
-<div id="spin-trigger" onclick="trigger()">
+<div id="details" onclick="trigger()">
   Details
   <svg id="spinner" style="width: 24px; height: 24px;">
     <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10 12 16 18 10Z"></path>
