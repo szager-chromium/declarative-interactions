@@ -57,4 +57,4 @@ function trigger() {
 </script>
 ```
 
-Because the `animation-trigger` syntax is declarative and does not run script or depend on global state, an implementation can potentially set up the animation in advance and start running it in response to an input event without waiting for an event handler to run on the window event loop.
+This builds on an existing [proposal](https://github.com/w3c/csswg-drafts/issues/8942#issuecomment-1602924213) for the `animation-trigger` CSS property. That proposal is focused on triggering an animation in response to a change in the intersection between a target element and the document-level scroll viewport. This proposal builds on that syntax by allowing an input event to act as the trigger. Because the `animation-trigger` syntax is declarative and does not run script or depend on global state, an implementation can potentially set up the animation in advance and start running it in response to an input event without waiting for an event handler to run on the window event loop.
