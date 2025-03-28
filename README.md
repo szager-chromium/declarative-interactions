@@ -1,0 +1,60 @@
+# Declarative Interactions
+
+## Overview
+
+One of the cornerstones of interactive web design is providing prompt visual feedback in response to input events; however, that can be difficult to achieve reliably. One of the enduring obstacles is that input events must be processed by event handlers on the window event loop -- which may be congested -- to trigger visual updates. This puts the web platform at a disadvantage compared to modern native platforms, which do not have this constraint.
+
+A common pattern in web design is for an input event handler to start an animation that provides immediate visual feedback to the user. All major browser implementations provide a way for certain animations, once started, to continue updating smoothly, even while the window event loop is blocked or busy. Thus an effective strategy to achieve smooth UI is to start an animation from an input handler, while postponing expensive application logic until after the animation is running. However, the animation can only be started from a task running in the window event loop.
+
+This proposal provides a declarative syntax for specifying that an input event targeting a particular element should start an animation on another specified element. The syntax is designed to make it possible for an implementation to start the animation independently of the window event loop, thereby eliminating a significant source of input response delay.
+
+Example:
+
+```
+<style>
+  #spinner {
+    animation: spin 0.25s forwards paused;
+    animation-trigger: click(spin-trigger) once;
+  }
+  #spin-trigger {
+    animation-trigger-name: spin-trigger;
+  }
+  @keyframes spin {
+    from { rotate: 0deg; }
+    to { rotate: 180deg; }
+  }
+</style>
+<div id="spin-trigger">
+  Details
+  <svg id="spinner" style="width: 24px; height: 24px;">
+    <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10 12 16 18 10Z"></path>
+  </svg>
+</div>
+```
+
+The above is almost exactly equivalent to:
+
+```
+<style>
+  #spinner {
+    animation: spin 0.25s forwards paused;
+  }
+  @keyframes spin {
+    from { rotate: 0deg; }
+    to { rotate: 180deg; }
+  }
+</style>
+<div id="spin-trigger" onclick="trigger()">
+  Details
+  <svg id="spinner" style="width: 24px; height: 24px;">
+    <path d="M16.59 8.59 12 13.17 7.41 8.59 6 10 12 16 18 10Z"></path>
+  </svg>
+</div>
+<script>
+function trigger() {
+  spinner.getAnimations().find(a => a.id == "spin").play();
+}
+</script>
+```
+
+Because the syntax is declarative and does not run script or depend on global state, an implementation can potentially set up the animation in advance and start running it in response to an input event without running an event handler on the window event loop.
