@@ -6,7 +6,7 @@ One of the cornerstones of interactive web design is providing prompt visual fee
 
 A common pattern in web design is for an input event handler to start an animation that provides immediate visual feedback to the user. All major browser implementations provide a way for certain animations, once started, to continue updating smoothly, even while the window event loop is blocked or busy. Thus an effective strategy to achieve smooth UI is to start an animation from an input handler, while postponing expensive application logic until after the animation is running. However -- crucially -- an animation can only be started from a task running in the window event loop, making it susceptible to arbitrary delay if the window event loop is blocked when the input event arrives.
 
-This proposal provides a declarative syntax for specifying that an input event targeting a particular element should start an animation on another specified element. The syntax is designed to make it possible for an implementation to start the animation independently of the window event loop, thereby eliminating a significant source of input response delay.
+This proposal provides a declarative syntax for specifying that an input event targeting a particular element should start an animation on another specified element. The syntax is designed to make it possible for an implementation to opportunistically start the animation independently of the window event loop, thereby eliminating a significant source of input response delay.
 
 ## Solution Sketch
 
