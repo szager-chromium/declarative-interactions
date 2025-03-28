@@ -8,9 +8,9 @@ A common pattern in web design is for an input event handler to start an animati
 
 This proposal provides a declarative syntax for specifying that an input event targeting a particular element should start an animation on another specified element. The syntax is designed to make it possible for an implementation to start the animation independently of the window event loop, thereby eliminating a significant source of input response delay.
 
-Example:
+## Solution Sketch
 
-```
+```html
 <style>
   #spinner {
     animation: spin 0.25s forwards paused;
@@ -34,7 +34,7 @@ Example:
 
 The above is almost exactly equivalent to:
 
-```
+```html
 <style>
   #spinner {
     animation: spin 0.25s forwards paused;
