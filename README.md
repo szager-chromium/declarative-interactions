@@ -2,7 +2,7 @@
 
 ## Overview
 
-One of the cornerstones of interactive web design is providing prompt visual feedback in response to input events; however, that can be difficult to achieve reliably. One of the enduring obstacles is that the only way to apply visual changes in response to an input event is via an event handler run by the window event loop, which is frequently congested. This puts the web platform at a disadvantage compared to modern native platforms, which do not have this constraint.
+One of the cornerstones of interactive web design is providing prompt visual feedback in response to input events; however, that can be difficult to achieve reliably. One of the enduring obstacles is that the only way to apply visual changes in response to an input event is via an event handler run by the window event loop, which is frequently congested. This puts the web platform at a disadvantage compared to modern native platforms, which do not have this built-in constraint.
 
 A common pattern in web design is for an input event handler to start an animation that provides immediate visual feedback to the user. All major browser implementations provide a way for certain animations, once started, to continue updating smoothly, even while the window event loop is blocked or busy. Thus an effective strategy to achieve smooth UI is to start an animation from an input handler, while postponing expensive application logic until after the animation is running. However -- crucially -- an animation can only be started from a task running in the window event loop, making it susceptible to arbitrary delay if the window event loop is blocked when the input event arrives.
 
