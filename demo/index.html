@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet"
+  />
+
+  <script type="importmap">
+    {
+      "imports": {
+        "@material/web/": "https://esm.run/@material/web/"
+      }
+    }
+  </script>
+  <script type="module">
+    import "@material/web/all.js";
+    import { styles as typescaleStyles } from "@material/web/typography/md-typescale-styles.js";
+
+    document.adoptedStyleSheets.push(typescaleStyles.styleSheet);
+  </script>
+
+  <style>
+    html, body {
+      margin: 0;
+    }
+    body {
+      display: flex;
+      flex-direction: row;
+      justify-content: space-around;
+      align-items: center;
+    }
+    #top {
+      height: 90vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      align-items: center;
+      margin: 2rem;
+    }
+    #clock {
+      height: 15vh;
+    }
+    #jank {
+     font-size: 2rem;
+     color: red;
+     opacity: 0.5;
+    }
+    #inputs {
+      height: 60vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      align-items: center;
+    }
+    }
+    #target {
+      width: 10rem;
+      position: absolute;
+      left: calc(50vw - 5rem);
+      top: calc(50vh - 5rem);
+    }
+    #points {
+      text-align: center;
+      margin-top: calc(50vh - 6rem);
+      color: red;
+      font-size: 5rem;
+      font-weight: bold;
+      opacity: 0;
+    }
+    #inject {
+      color: #888;
+      --md-checkbox-outline-color: #888;
+      --md-checkbox-selected-focus-container-color: #888;
+      --md-checkbox-selected-container-color: #888;
+    }
+    * {
+      font-family: roboto;
+      user-select: none;
+    }
+  </style>
+</head>
+
+<div id="top">
+  <div id="inputs">
+    <md-circular-progress></md-circular-progress>
+    <md-outlined-button onclick="load_a_thing(this)">Load a thing</md-outlined-button>
+    <md-chip-set style="display:flex;flex-direction:column">
+      <md-filter-chip label="Strongly agree"></md-filter-chip>
+      <md-filter-chip label="Somewhat agree"></md-filter-chip>
+      <md-filter-chip label="What even is this?"></md-filter-chip>
+      <md-filter-chip label="Somewhat disagree"></md-filter-chip>
+      <md-filter-chip label="Strongly disagree"></md-filter-chip>
+    </md-chip-set>
+    <md-outlined-button onclick="open_dialog(this)">Show it</md-outlined-button>
+    <md-dialog>
+      <div slot="headline">
+        Listen up
+      </div>
+      <form slot="content" id="form-id" method="dialog">
+        I need your attention.
+      </form>
+      <div slot="actions">
+        <md-text-button form="form-id">Yawn</md-text-button>
+      </div>
+    </md-dialog>
+    <md-switch></md-switch>
+  </div>
+  
+  <svg id="clock" viewBox="0 0 100 100">
+    <path id="hand" fill="#ddd" stroke="none" d="" />
+    <circle id="face"
+      cx="50"
+      cy="50"
+      r="48"
+      fill="none"
+      stroke-width="2"
+      stroke="black"
+    />
+    <text id="jank" x="20" y="60" fill="red" style="visibility:hidden">jank!</text>
+  </svg>
+  <label id="inject">
+    <md-checkbox id="random-jank"></md-checkbox>
+    inject random jank
+  </label>
+</div>
+
+<script>
+  function load_a_thing(el) {
+    if (el.previousElementSibling.hasAttribute("indeterminate")) {
+      el.innerText = "Load a thing";
+      el.previousElementSibling.removeAttribute("indeterminate");
+    } else {
+      el.innerText = "Stop loading";
+      el.previousElementSibling.setAttribute("indeterminate", "");
+    }
+  }
+  function open_dialog(el) {
+    if (el.nextElementSibling.hasAttribute("open")) {
+      el.nextElementSibling.removeAttribute("open");
+    } else {
+      el.nextElementSibling.setAttribute("open", "");
+    }
+  }
+  let clock = document.getElementById("clock");
+  let hand = document.getElementById("hand");
+  let face = document.getElementById("face");
+  let t0 = performance.now();
+  let last_angle = 0;
+  function update_clock(t) {
+    // The timestamp for an animation frame is taken on the compositor thread
+    // at the time the animation frame is added to the main thread task queue.
+    // If the animation frame task is delayed (due to main thread jank), then
+    // its timestamp might be pretty old by the time it runs.
+    if (t < t0 + 500 * last_angle) {
+      t = performance.now();
+    }
+    let angle = ((t - t0) / 500) % (2 * Math.PI);
+    let x = 50 + 48 * Math.sin(angle);
+    let y = 50 - 48 * Math.cos(angle);
+    let large_arc = angle > Math.PI ? "1" : "0";
+    hand.setAttribute(
+      "d",
+      `M 50,50 l 0,-48 A 48 48 0 ${large_arc} 1 ${x},${y} Z`
+    );
+    last_angle = angle;
+    requestAnimationFrame(update_clock);
+  }
+  update_clock(t0);
+
+  function block_main() {
+    return new Promise((resolve, reject) => {
+      let delay = Math.round(700 + Math.random() * 500);
+      let request = new XMLHttpRequest();
+      request.open("GET", "https://httpstat.us/200", /*async=*/ false);
+      request.setRequestHeader("X-HttpStatus-Sleep", `${delay}`);
+      request.send();
+      t0 = performance.now() - last_angle * 500;
+      resolve();
+    });
+  }
+
+  let random_jank = document.getElementById("random-jank");
+  let jank = document.getElementById("jank");
+  function inject_random_jank() {
+    clock.style.backgroundColor = "";
+    setTimeout(() => {
+      if (random_jank.shadowRoot.firstElementChild.classList.contains("checked")) {
+        requestAnimationFrame(() => {
+          jank.style.visibility = "";
+          face.setAttribute("stroke", "red");
+          setTimeout(() => {
+            block_main().then(() => {
+              jank.style.visibility = "hidden";
+              face.setAttribute("stroke", "black");
+              inject_random_jank();
+            });
+          });
+        });
+      }
+    }, 500 + 500 * Math.random());
+  }
+  random_jank.addEventListener("change", inject_random_jank);
+</script>
